@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milkyway Agent - Quality Verification Dashboard</title>
+    <meta name="description" content="Milkyway Agent dashboard for FSSAI-grounded milk density evaluation, lactometer vision screening, and automated risk routing.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #131924;
+            --bg-tertiary: #1b2333;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #1d4ed8;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --status-safe: #10b981;
+            --status-risky: #ef4444;
+            --status-escalated: #f59e0b;
+            --status-invalid: #ec4899;
+            --border-color: #2e3b52;
+            --font-outfit: 'Outfit', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+            --font-code: 'Fira Code', monospace;
+            --glow-safe: rgba(16, 185, 129, 0.15);
+            --glow-risky: rgba(239, 68, 68, 0.15);
+            --glow-escalated: rgba(245, 158, 11, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: var(--font-inter);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(180deg, rgba(19, 25, 36, 0.8) 0%, rgba(10, 14, 23, 0) 100%);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.2rem;
+            height: 2.2rem;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: var(--font-outfit);
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        h1 {
+            font-family: var(--font-outfit);
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        h2 {
+            font-family: var(--font-outfit);
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ffffff;
+        }
+
+        .card-header-icon {
+            color: var(--accent-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"], input[type="file"], select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: var(--font-inter);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, input[type="file"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* File upload drop zone */
+        .file-upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: var(--bg-primary);
+            position: relative;
+        }
+        .file-upload-zone:hover, .file-upload-zone.dragover {
+            border-color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .file-upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border: none;
+        }
+        .upload-icon { font-size: 2rem; margin-bottom: 0.25rem; }
+        .upload-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: block;
+        }
+        .upload-label strong { color: var(--accent-primary); }
+        .file-name-display {
+            margin-top: 0.5rem;
+            font-size: 0.82rem;
+            color: var(--status-safe);
+            font-family: var(--font-code);
+            min-height: 1.2em;
+        }
+
+        .slider-container {
+            background-color: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-value {
+            font-family: var(--font-code);
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .preset-btn {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-main);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background-color: var(--border-color);
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
+
+        .preset-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .preset-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            font-family: var(--font-outfit);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+        }
+
+        /* Results view styling */
+        .pipeline-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid transparent;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-family: var(--font-outfit);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* Badge color states */
+        .status-safe-bg {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--status-safe);
+            color: var(--status-safe);
+            box-shadow: 0 0 15px var(--glow-safe);
+        }
+        .status-risky-bg {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--status-risky);
+            color: var(--status-risky);
+            box-shadow: 0 0 15px var(--glow-risky);
+        }
+        .status-escalated-bg {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--status-escalated);
+            color: var(--status-escalated);
+            box-shadow: 0 0 15px var(--glow-escalated);
+        }
+        .status-invalid-bg {
+            background-color: rgba(236, 72, 153, 0.1);
+            border: 1px solid var(--status-invalid);
+            color: var(--status-invalid);
+        }
+
+        .pipeline-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .step-card {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .step-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .step-indicator {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-indicator.active {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .metric-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-family: var(--font-code);
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.25rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--accent-primary);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .explanation {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        /* Settings and Reference Editor */
+        .editor-section {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+
+        .textarea-editor {
+            width: 100%;
+            height: 220px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            padding: 1rem;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .textarea-editor:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .editor-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .save-toast {
+            font-size: 0.85rem;
+            color: var(--status-safe);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .save-toast.visible {
+            opacity: 1;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-muted);
+            background-color: var(--border-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-area">
+                <div class="logo-icon">M</div>
+                <div>
+                    <h1>Milkyway Agent</h1>
+                    <div class="subtitle">AI Lactometer Grounding & Safety Pipeline</div>
+                </div>
+            </div>
+            <div>
+                <span class="status-badge" style="border-color: var(--border-color); color: var(--text-muted); background: var(--bg-secondary);">
+                    Flask API v1.0
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Left Column: Settings and Trigger Sample -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="card-header-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                Inspection Runner
+            </h2>
+
+            <div class="form-group">
+                <label>Lactometer Photo <span style="font-size:0.8em;color:var(--text-muted);">(JPG or PNG, max 5 MB)</span></label>
+                <div class="file-upload-zone" id="uploadZone">
+                    <input type="file" id="photoFile" accept="image/jpeg,image/png"
+                           onchange="onFileChosen(this)">
+                    <div class="upload-icon">📷</div>
+                    <span class="upload-label">Drop an image here or <strong>click to browse</strong></span>
+                    <div class="file-name-display" id="fileNameDisplay"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="milkType">Milk Type</label>
+                <select id="milkType" required>
+                    <option value="" disabled selected>Select Milk Type...</option>
+                    <option value="cow">Cow</option>
+                    <option value="buffalo">Buffalo</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Safety Routing Parameters</label>
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Confidence Escalate Threshold</span>
+                        <span class="slider-value" id="thresholdVal">0.80</span>
+                    </div>
+                    <input type="range" id="threshold" min="0.0" max="1.0" step="0.05" value="0.80" oninput="document.getElementById('thresholdVal').innerText = parseFloat(this.value).toFixed(2)">
+                </div>
+            </div>
+
+            <button type="button" class="btn-primary" onclick="runAnalysis()">
+                Execute Screening Pipeline
+            </button>
+        </div>
+
+        <!-- Right Column: Verification Result Pipeline -->
+        <div class="card">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="card-header-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Real-Time Verification Result
+            </h2>
+
+            <div id="resultsContainer" class="hidden">
+                <div id="verdictBanner" class="pipeline-status">
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">DECISION STATUS</div>
+                        <div style="font-size: 1.4rem; font-weight: 700; font-family: var(--font-outfit);" id="decisionStatus">SAFE</div>
+                    </div>
+                    <span class="status-badge" id="decisionBadge">SAFE</span>
+                </div>
+
+                <div class="pipeline-steps">
+                    <!-- Step 1: Vision Screen -->
+                    <div class="step-card">
+                        <div class="step-header">
+                            <span class="step-title">Step 1: Lactometer Vision Screen</span>
+                            <span class="step-indicator active">1</span>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-item">
+                                <span class="metric-label">Lactometer Reading</span>
+                                <span class="metric-value" id="visionReading">0.0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">OCR Confidence</span>
+                                <span class="metric-value" id="visionConfidence">0.0%</span>
+                                <div class="progress-bar-bg">
+                                    <div id="visionConfBar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: FSSAI Grounding -->
+                    <div class="step-card">
+                        <div class="step-header">
+                            <span class="step-title">Step 2: FSSAI Grounded Risk Reasoner</span>
+                            <span class="step-indicator active">2</span>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-item">
+                                <span class="metric-label" id="fssaiStandardLabel">FSSAI Standard Minimum</span>
+                                <span class="metric-value" id="fssaiStandard">0.0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Reasoner Confidence</span>
+                                <span class="metric-value" id="reasonerConfidence">0.0%</span>
+                                <div class="progress-bar-bg">
+                                    <div id="reasonerConfBar" class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="explanation" id="reasonerExplanation">Checking parameters against database...</div>
+                    </div>
+
+                    <!-- Step 3: Human Verification Router -->
+                    <div class="step-card">
+                        <div class="step-header">
+                            <span class="step-title">Step 3: Escalate & Route Policy</span>
+                            <span class="step-indicator active">3</span>
+                        </div>
+                        <div class="metric-row" style="grid-template-columns: 1fr;">
+                            <div class="metric-item">
+                                <span class="metric-label">Escalation Threshold Filter</span>
+                                <span class="metric-value" id="activeThresholdVal">0.70</span>
+                            </div>
+                        </div>
+                        <div class="explanation" id="routingExplanation">Automated decision validation...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="resultsPlaceholder" style="padding: 4rem 1rem; text-align: center; color: var(--text-muted);">
+                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom: 1rem; opacity: 0.5;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z"></path></svg>
+                <p>Run the inspection pipeline to view dynamic verdict details.</p>
+            </div>
+        </div>
+
+        <!-- Reference.md standards editor section -->
+        <div class="card editor-section">
+            <h2>
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="card-header-icon"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                FSSAI Grounding Database (reference.md)
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Customize FSSAI reference limits directly. The risk reasoner extracts the minimum threshold reading dynamically using regular expression searches from this Markdown document.
+            </p>
+            <textarea id="referenceContent" class="textarea-editor" placeholder="Loading FSSAI standards reference content..."></textarea>
+            
+            <div class="editor-footer">
+                <span class="save-toast" id="saveToast">Reference database updated successfully!</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Highlight chosen file name
+        function onFileChosen(input) {
+            const display = document.getElementById('fileNameDisplay');
+            display.textContent = input.files.length ? '✓ ' + input.files[0].name : '';
+        }
+
+        // Drag-and-drop visual feedback
+        const zone = document.getElementById('uploadZone');
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            const dt = e.dataTransfer;
+            if (dt.files.length) {
+                document.getElementById('photoFile').files = dt.files;
+                onFileChosen(document.getElementById('photoFile'));
+            }
+        });
+
+        // Fetch reference on mount
+        async function loadReference() {
+            try {
+                const res = await fetch('/api/reference');
+                const data = await res.json();
+                if (data.content !== undefined) {
+                    document.getElementById('referenceContent').value = data.content;
+                }
+            } catch (err) {
+                console.error("Failed to load reference standards:", err);
+            }
+        }
+
+        // Run analysis
+        async function runAnalysis() {
+            const photoInput = document.getElementById('photoFile');
+            const threshold = parseFloat(document.getElementById('threshold').value);
+            const milk_type = document.getElementById('milkType').value;
+
+            if (!photoInput.files.length) {
+                alert("Please select a lactometer photo.");
+                return;
+            }
+            if (!milk_type) {
+                alert("Please select a Milk Type.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('photo', photoInput.files[0]);
+            formData.append('milk_type', milk_type);
+            formData.append('threshold', threshold);
+
+            try {
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData          // no Content-Type header — browser sets multipart boundary
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert('Server error: ' + (data.error || res.statusText));
+                    return;
+                }
+
+                // Display Results container
+                document.getElementById('resultsPlaceholder').classList.add('hidden');
+                document.getElementById('resultsContainer').classList.remove('hidden');
+
+                // Render metrics
+                document.getElementById('visionReading').innerText = data.vision_screen.reading.toFixed(1);
+                document.getElementById('visionConfidence').innerText = (data.vision_screen.confidence * 100).toFixed(0) + '%';
+                document.getElementById('visionConfBar').style.width = (data.vision_screen.confidence * 100) + '%';
+
+                document.getElementById('fssaiStandard').innerText = data.risk_reasoner.standard_used.toFixed(1);
+                const milkTypeLabel = data.input.milk_type.charAt(0).toUpperCase() + data.input.milk_type.slice(1);
+                document.getElementById('fssaiStandardLabel').innerText = `FSSAI Standard Minimum (${milkTypeLabel})`;
+                document.getElementById('reasonerConfidence').innerText = (data.risk_reasoner.confidence * 100).toFixed(0) + '%';
+                document.getElementById('reasonerConfBar').style.width = (data.risk_reasoner.confidence * 100) + '%';
+                document.getElementById('reasonerExplanation').innerText = data.risk_reasoner.explanation;
+
+                document.getElementById('activeThresholdVal').innerText = data.input.threshold.toFixed(2);
+                document.getElementById('routingExplanation').innerText = data.routing.reason;
+
+                // Configure Badge states
+                const status = data.routing.final_status;
+                const statusBadge = document.getElementById('decisionBadge');
+                const verdictBanner = document.getElementById('verdictBanner');
+                document.getElementById('decisionStatus').innerText = status;
+                
+                statusBadge.className = 'status-badge';
+                verdictBanner.className = 'pipeline-status';
+
+                if (data.routing.escalate) {
+                    statusBadge.innerText = 'ESCALATED';
+                    statusBadge.classList.add('status-escalated-bg');
+                    verdictBanner.classList.add('status-escalated-bg');
+                } else if (status === 'SAFE') {
+                    statusBadge.innerText = 'SAFE';
+                    statusBadge.classList.add('status-safe-bg');
+                    verdictBanner.classList.add('status-safe-bg');
+                } else if (status === 'RISKY') {
+                    statusBadge.innerText = 'RISKY';
+                    statusBadge.classList.add('status-risky-bg');
+                    verdictBanner.classList.add('status-risky-bg');
+                } else {
+                    statusBadge.innerText = status;
+                    statusBadge.classList.add('status-invalid-bg');
+                    verdictBanner.classList.add('status-invalid-bg');
+                }
+
+            } catch (err) {
+                alert("Error running verification analysis: " + err);
+            }
+        }
+
+        // Initialize view
+        window.addEventListener('DOMContentLoaded', () => {
+            loadReference();
+        });
+    </script>
+</body>
+</html>
