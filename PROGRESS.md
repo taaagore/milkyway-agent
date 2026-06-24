@@ -35,4 +35,14 @@ instability — confidence and consistency are not the same thing.
 - Result: reading now consistent across all runs on same image
 - Escalation on test2.jpg is correct behavior (genuinely ambiguous image,
   low confidence → human review triggered appropriately)
-  
+## Jun 24/25 — Demo prep + GitHub setup
+- Found test2.jpg's escalation behavior was actually correct (no clear 
+  liquid line in stock photos), not a bug
+- Found test4.jpg as a genuine clean case: reading 12.0, confidence 0.9, 
+  RISKY verdict, not escalated -- confirmed via direct pipeline test
+- GitHub repo created and pushed: github.com/taaagore/milkyway-agent
+- Caught and fixed an accidental API key commit in README.md before 
+  it reached GitHub (push protection blocked it, amended commit, 
+  re-pushed clean)
+- Recording plan finalized: test4.jpg (confident RISKY) + test1.jpg 
+  (escalation) as the two demo cases
