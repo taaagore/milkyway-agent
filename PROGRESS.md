@@ -46,3 +46,15 @@ instability — confidence and consistency are not the same thing.
   re-pushed clean)
 - Recording plan finalized: test4.jpg (confident RISKY) + test1.jpg 
   (escalation) as the two demo cases
+
+## Jun 25 — test_app.py rewritten
+- Old tests checked stale mocked filename-pattern values; rewritten to 
+  use unittest.mock on the Gemini client itself, so tests run fast and 
+  don't depend on live API/quota
+- Added proper file-upload testing (multipart form data) matching the 
+  real /api/analyze route
+- Added test confirming /api/reference POST is correctly rejected (405) 
+  per the security fix
+- Fixed file-handle cleanup issue in vision_screen() (img.load()) and 
+  added test_dummy_image.jpg to .gitignore
+- All 12 tests passing
