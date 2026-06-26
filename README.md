@@ -8,6 +8,12 @@ or implausible results.
 Built for the Kaggle 5-Day AI Agents Intensive Vibe Coding Course 
 capstone, "Agents for Good" track.
 
+## Team
+
+Built by Team 2highackers:
+- Tagore K — https://github.com/taaagore
+- Sivanath Ambatipudi — https://github.com/sivambatipudi
+
 ## The Problem
 
 Rural households and small dairy farmers have no practical way to check 
