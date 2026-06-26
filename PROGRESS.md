@@ -20,13 +20,14 @@
   correctly with live, non-mocked data.
 
 ## Run-to-run consistency issue found (Jun 24)
-Same test2.jpg photo produced different verdicts (RISKY/SAFE) across 
-4 manual test runs, despite OCR confidence self-reporting consistently 
-high (~95%). Root cause: no temperature setting on Gemini API call, 
-allowing sampling randomness on a task that should be deterministic.
-Fix: set temperature=0 in generation config.
-Key lesson: self-reported confidence does not detect this kind of 
-instability — confidence and consistency are not the same thing.
+- Same test2.jpg photo produced different verdicts (RISKY/SAFE) across 
+  4 manual test runs, despite OCR confidence self-reporting consistently 
+  high (~95%). Root cause: no temperature setting on Gemini API call, 
+  allowing sampling randomness on a task that should be deterministic.
+- Fix: set temperature=0 in generation config.
+- Key lesson: self-reported confidence does not detect this kind of 
+  instability — confidence and consistency are not the same thing.
+  
 ## Temperature fix + prompt tightening (Jun 24)
 - temperature=0 alone didn't fix run-to-run variance on test2.jpg
 - Root cause: ambiguous stock photo with multiple competing numbers
